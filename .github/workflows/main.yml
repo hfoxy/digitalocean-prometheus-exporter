@@ -1,0 +1,32 @@
+name: Build & Push
+
+on: [push, pull_request]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  ci:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Declare variables
+        id: vars
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Build Docker image
+        run: docker build . -t "ghcr.io/hfoxy/digitalocean-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "ghcr.io/hfoxy/digitalocean-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}"
+      - name: Add latest tag
+        if: github.ref == 'refs/heads/main'
+        run: docker tag "ghcr.io/hfoxy/digitalocean-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}" "ghcr.io/hfoxy/digitalocean-prometheus-exporter:latest"
+      - name: Push Docker image
+        run: docker push -a "ghcr.io/hfoxy/digitalocean-prometheus-exporter"
