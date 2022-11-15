@@ -16,8 +16,6 @@ digitalocean_droplet_status = Enum('digitalocean_droplet_status', 'Droplet\'s st
 class Droplets:
 
     def __init__(self, droplet_list):
-        print(type(droplet_list))
-        print(droplet_list)
         self.raw_list = droplet_list
         self.droplet_list = []
         for droplet_data in droplet_list:
@@ -27,7 +25,6 @@ class Droplets:
 class Droplet:
 
     def __init__(self, droplet_data):
-        print(droplet_data)
         self.id = droplet_data['id']
         self.name = droplet_data['name']
         self.vcpus = droplet_data['vcpus']

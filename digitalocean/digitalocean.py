@@ -4,9 +4,9 @@ from digitalocean.droplets import Droplets
 
 class DigitalOcean:
 
-    def __init__(self, token: str, timeout: int = 10):
-        self.token = token
+    def __init__(self, tokens: list[str], timeout: int = 10):
+        self.tokens = tokens
         self.api = API(self, timeout=timeout)
 
     def get_all_droplets(self):
-        return Droplets(self.api.get("/v2/droplets")['droplets']).droplet_list
+        return Droplets(self.api.get("/v2/droplets", {'page': 1, 'per_page': 1000})['droplets']).droplet_list
